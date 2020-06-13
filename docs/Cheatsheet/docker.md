@@ -107,10 +107,14 @@ docker inspect <NAME or ID> # inspect environment variables
 ```dockerfile
 FROM <base OS or another image>
 
+MAINTAINER magicgriffin <maijing3007@qq.com>
+
 RUN <command run in sudo mode>
 
 # copy files from the local system onto the docker image
 COPY <dir in host> <dir in image>
+
+USER user # affect following 'RUN', CMD', 'ENTRYPOINT' etc.
 
 # define the default program that will be run within the container
 CMD <command> <param1>
@@ -124,7 +128,8 @@ CMD 5 # default parameters
 ```
 
 ```bash
-docker build <Dockerfile> -t <tag name> # create locally
+docker build -t <tag name> -f <Dockerfile name> . # create locally
+docker build github.com/creack/docker-firefox # build vis URL
 docker push <image name> # push image to Docker Registry, like docker hub
 docker run --entrypoint <command> <image> 
 docker history <image name> # inspect the layered architecture
@@ -139,9 +144,7 @@ Recall that *a container only lives as long as the process inside it is alive.*
   - `docker run <image name> <COMMAND>` will <u>override</u> the default command
 - `ENTRYPOINT` is like the command instruction that you can specify the program that will be run when the container starts, and <u>appends</u> the parameters.
 	- In Dockerfile: `ENTRYPOINT sleep`; and run `docker run ubuntu-sleeper 10`
-  	- to override the entrypoint, leverage the `--entrypoint` flags.
-
-
+  	- to override the entrypoint, leverage the `--entrypoint` flag.
 
 ## Docker Networking
 
@@ -287,6 +290,7 @@ docker run --memory=100m <image>
     - Nano Server
 
 > VirtualBox or Hyper-V?
+>
 > - can’t co-exist!
 
 ## Docker Orchestration
