@@ -1,35 +1,44 @@
-on: [push]
+on: [pull_request]
 
 name: CI
 
 jobs:
 
-  jekyll:
-    name: Build Jekyll site
+  jekyll-latest:
+    name: Build Jekyll site (latest)
     runs-on: ubuntu-latest
     steps:
 
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
 
     - name: Build the site in the jekyll/builder container
       run: |
         docker run --rm \
         --volume="${{ github.workspace }}:/srv/jekyll" \
-        jekyll/builder:3.8.5 /bin/bash -c "chmod 777 /srv/jekyll && jekyll build"
-        
-  css:
-    name: Stylelint
+        jekyll/builder:latest /bin/bash -c "gem install bundler && chmod -R 777 /srv/jekyll && bundle install && bundle exec jekyll build && bundle exec rake search:init"
+
+  jekyll-3-8-5:
+    name: Build Jekyll site (v3.8.5)
     runs-on: ubuntu-latest
     steps:
-    
-    - uses: actions/checkout@master
 
-    - name: Use Node.js 10.x
+    - uses: actions/checkout@v2
+
+    - name: Build the site in the jekyll/builder container
+      run: |
+        docker run --rm \
+        --volume="${{ github.workspace }}:/srv/jekyll" \
+        jekyll/builder:3.8.5 /bin/bash -c "gem install bundler && chmod -R 777 /srv/jekyll && bundle install && bundle exec jekyll build && bundle exec rake search:init"
+
+  assets:
+    name: Test CSS and JS
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        version: 10.x
-
-    - name: npm install, build, and test
-      run: |
-        npm install
-        npm test
+        node-version: '12.x'
+    - run: npm install
+    - run: npm test
